@@ -12,8 +12,8 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
 
 ## Arquitectura de la Aplicación
 
-```mermaid
-flowchart TD
+``` mermaid
+flowchart TD;
     Frontend (Navegador) --> Backend (Node.js + Express);
     Backend (Node.js + Express) --> Base de datos (MongoDB);
 ```
