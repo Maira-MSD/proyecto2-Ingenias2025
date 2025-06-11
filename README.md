@@ -14,8 +14,8 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
 
 ```mermaid
 graph TD
-    A[Frontend (Navegador)] --> B[Backend (Node.js + Express)]
-    B --> C[Base de datos (MongoDB)]
+    [Frontend (Navegador)] --> [Backend (Node.js + Express)]
+    [Backend (Node.js + Express)] --> [Base de datos (MongoDB)]
 ```
 
 ---
@@ -46,7 +46,7 @@ graph TD
 | GET | `/` | Ruta raiz |
 | GET |  `/productos` | Obtener todos los productos en la bbdd |
 | GET | `/productos/:nombre` | Busqueda de producto por nombre |
-| GET | `/productos/:codigo` | Busqueda de producto por codigo |
+| GET | `/productos/:codigo` | Busqueda de producto por codigo de 4 números |
 | POST | `/productos` | Agregar nuevos productos a la bbdd|
 
 # Funcionamiento de la app
