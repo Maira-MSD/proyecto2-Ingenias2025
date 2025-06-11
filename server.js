@@ -31,25 +31,6 @@ const data = {
     productos:" ",
 }
 
-const generarLista = (items) => {
-    if (!Array.isArray(items) || items.length === 0) return '<h2>No se encontraron resultados</h2>';
- 
-     return `
-      <h3>Encontra tus productos favoritos</h3>
-      <ul>
-        ${items
-          .map(item => `
-            <li>
-              <strong>Código</strong> ${item.codigo} <br>
-              <strong>Nombre</strong> ${item.nombre} <br>
-              <strong>Precio</strong> ${item.precio} <br>
-              <strong>Categoría</strong> ${item.categoria} <br>
-            </li>
-          `)
-          .join('')}
-      </ul>
-    `;
-          };
 
 app.get("/", (req,res) => {
   res.send("Los mejores productos, al mejor precio");
@@ -70,15 +51,6 @@ const db = client.db("super");
 const productosSuper = await db.collection("super").find().toArray();
 
 console.log(productosSuper);
-
-const listaProductos = generarLista(productosSuper);
-  
-//renderizado de la vista
-
-res.render("productos", 
-   {titulo: "Productos", 
-    mensaje: "Encontra tus productos favoritos",
-   productos: listaProductos});
 
 //error si no genera la lista
 } catch (error) {
@@ -116,12 +88,6 @@ app.get("/productos/:nombre", async (req, res) => {
 
     console.log(nombreEncontrado);
 
-    res.render("productos", 
-      {titulo: "Detalles del producto",
-      mensaje: `Resultado para: ${nombreProducto}`,
-      producto: nombreEncontrado,
-    });
-
   } catch (error) {
     console.error("Error en /productos/:nombre:", error);
     res.status(500).send("Error al buscar producto por nombre");
@@ -140,8 +106,18 @@ const nuevoProducto = req.body;
 
 //control de error en el formato
 
+if (
+  !nuevoProducto ||
+  !nuevoProducto.codigo ||
+  !nuevoProducto.nombre ||
+  !nuevoProducto.categoria ||
+  nuevoProducto.precio === undefined
+) {
+  return res.status(400).send("Faltan campos requeridos: codigo, nombre o precio");
+}
+
 if (!nuevoProducto || nuevoProducto === undefined){
-   res.status(400).send("Error en el formato crear");
+    return res.status(400).send("Error en el formato crear");
 }
 
 //conexion con mongo
@@ -157,13 +133,12 @@ const collection = client.db("super").collection("super");
 await collection.insertOne(nuevoProducto);
 
 console.log("Nuevo producto agregado");
-res.status(201).send("Nuevo Producto");
+return res.status(201).send("Nuevo Producto");
 
 } catch (error) {
   console.log("Error al crear el producto", error);
-  res.status(500).send("Error del servidor al crear el producto");
+  return res.status(500).send("Error del servidor al crear el producto");
 
-  
 } finally {
     if (client) {
          await disconnectFromMongoDB();
@@ -172,7 +147,94 @@ res.status(201).send("Nuevo Producto");
 
 });
 
+//busqueda por codigo
 
+app.get("/productos/:codigo", async (req, res) => {
+  
+  try {
+    const codigoProducto = parseInt(req.params.codigo);
+
+    client = await connectToMongoDB();
+    if (!client) {
+      return res.status(500).send("Error al conectarse a MongoDB");
+    }
+
+    const db = client.db("super").collection("super");
+
+    const productoEncontrado = await db.collection("super").findOne({ codigo: codigoProducto });
+
+    if (!productoEncontrado) {
+      return res.status(404).send(`No se encontró el producto ${codigoProducto}`);
+    }
+
+    console.log(productoEncontrado);
+    return res.status(200).json(productoEncontrado)
+
+
+  } catch (error) {
+    console.error("Error en /productos/:codigo", error);
+    res.status(500).send("Error al buscar producto por codigo");
+  } finally {
+    if (client) {
+      await disconnectFromMongoDB();
+    }
+  }
+});
+
+
+//funcion para poder modificar los precios de la bbdd del super
+
+app.put("/productos/:codigo", async(req,res) => {
+  const codigo = parseInt(req.params.codigo);
+  const {nuevoPrecio} = req.body;
+
+  if (
+    isNaN(codigo) ||
+    nuevoPrecio === undefined ||
+    typeof nuevoPrecio !== "number"
+  ){
+    return res.status(400).send("Error en el formato de datos");
+  }
+
+  //conexion con mongo
+try {
+ client = await connectToMongoDB();
+    if (!client) {
+      return res.status(500).send("Error al conectarse a MongoDB");
+    };
+
+//busqueda del producto por codigo
+
+const productoBuscado = await collection.findOne({ codigo: codigo });
+console.log("Producto encontrado:", productoBuscado);
+
+//modificacion del precio
+
+const collection = client.db("super").collection("super");
+const resultado = await collection.updateOne(
+    {codigo: codigo},
+    {$set:{precio: precio}}
+);
+
+//control de busqueda del producto a modificar
+  if (resultado.matchedCount === 0) {
+      return res.status(404).send("Producto no encontrado");
+    }
+
+console.log("Precio modificado");
+return res.status(200).send(nuevoPrecio);
+
+} catch (error) {
+  console.log("Error al modificar el precio", error);
+  return res.status(500).send("Error del servidor al modificar el precio");
+
+} finally {
+    if (client) {
+         await disconnectFromMongoDB();
+    }
+}
+
+});
 
 //funcionamiento del puerto
 app.listen(3000, () => {
