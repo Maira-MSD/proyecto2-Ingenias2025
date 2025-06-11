@@ -14,15 +14,9 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
 
 ```mermaid
 flowchart TD
-    start --> Stop
+    Frontend (Navegador) --> Backend (Node.js + Express);
+    Backend (Node.js + Express) --> Base de datos (MongoDB);
 ```
-
-```mermaid
-graph TD
-    [Frontend (Navegador)] --> [Backend (Node.js + Express)];
-    [Backend (Node.js + Express)] --> [Base de datos (MongoDB)];
-```
-
 ---
 
 ## Estructura de los objetos en la base de datos
