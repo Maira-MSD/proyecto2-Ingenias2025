@@ -10,9 +10,13 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
 
 ---
 
-# Acceso al sitio
+## Arquitectura de la Aplicación
 
-[http://localhost:3000](http://localhost:3000)
+```mermaid
+graph TD
+    A[Frontend (Navegador)] --> B[Backend (Node.js + Express)]
+    B --> C[Base de datos (MongoDB)]
+```
 
 ---
 
@@ -25,6 +29,15 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
   "precio": 8.75,
   "categoria": "Limpieza"
 }
+```
+
+---
+
+# Acceso al sitio
+
+[http://localhost:3000](http://localhost:3000)
+
+---
 
 # Endpoints disponibles
 
@@ -36,4 +49,13 @@ Este es un proyecto para gestionar una bbdd de productos de supermercado, utiliz
 | GET | `/productos/:codigo` | Busqueda de producto por codigo |
 | POST | `/productos` | Agregar nuevos productos a la bbdd|
 
+# Funcionamiento de la app
 
+```mermaid
+graph TD
+    U[Usuario (Navegador)] -->|1. Solicitud GET /productos| FE[Frontend (App Web)]
+    FE -->|2. Llama API REST GET /productos| BE[Backend (Node.js + Express)]
+    BE -->|3. Consulta productos| DB[Base de datos (MongoDB)]
+    DB -->|4. Retorna lista de productos| BE
+    BE -->|5. Envía respuesta JSON con productos| FE
+    FE -->|6. Renderiza productos en UI| U
