@@ -17,6 +17,10 @@ flowchart TD;
     Frontend (Navegador) --> Backend (Node.js + Express);
     Backend (Node.js + Express) --> Base de datos (MongoDB);
 ```
+
+![Gráfico de la API](./img/arquitectura.png)
+
+
 ---
 
 ## Estructura de los objetos en la base de datos
@@ -60,3 +64,5 @@ graph TD
     FE -->|6. Renderiza productos en UI| U;
 
 ```
+
+![Gráfico de la API](./img/funcionamiento.png)
